@@ -1,0 +1,8 @@
+#!/bin/sh
+# rot13 -- rot13's stdin or all arguments
+
+if [ -z "$1" ]; then
+  tr '[A-Za-z]' '[N-ZA-Mn-za-m]'
+else
+  echo "$*" | tr '[A-Za-z]' '[N-ZA-Mn-za-m]'
+fi
