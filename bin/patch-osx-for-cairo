@@ -1,0 +1,37 @@
+#!/bin/bash
+# patch-osx-for-cairo -- Patch headers to work with gcc
+# See http://stackoverflow.com/a/28014302
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+patch -d /usr/include -p1 -i "$DIR"/"$(basename ${BASH_SOURCE[0]})"
+exit
+
+diff --git a/Availability.h b/Availability.h
+index 4a1ee6e..d971198 100644
+--- a/Availability.h
++++ b/Availability.h
+@@ -159,7 +159,7 @@
+     #define __OSX_AVAILABLE_BUT_DEPRECATED_MSG(_osxIntro, _osxDep, _iosIntro, _iosDep, _msg) \
+                                                     __AVAILABILITY_INTERNAL##_iosIntro##_DEP##_iosDep##_MSG(_msg)
+ 
+-#elif defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
++#elif defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && defined(__clang__)
+     #define __OSX_AVAILABLE_STARTING(_osx, _ios) __AVAILABILITY_INTERNAL##_osx
+     #define __OSX_AVAILABLE_BUT_DEPRECATED(_osxIntro, _osxDep, _iosIntro, _iosDep) \
+                                                     __AVAILABILITY_INTERNAL##_osxIntro##_DEP##_osxDep
+diff --git a/dispatch/object.h b/dispatch/object.h
+index c637189..b7096e0 100644
+--- a/dispatch/object.h
++++ b/dispatch/object.h
+@@ -140,7 +140,11 @@ typedef union {
+  * Instead, the block literal must be copied to the heap with the Block_copy()
+  * function or by sending it a -[copy] message.
+  */
++#ifdef __clang__
+ typedef void (^dispatch_block_t)(void);
++#else
++typedef void* dispatch_block_t;
++#endif
+ 
+ __BEGIN_DECLS
+ 
